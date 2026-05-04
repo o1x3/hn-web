@@ -7,6 +7,7 @@ import {
   extractVoteAuth,
   isBadLogin,
   isLoggedIn,
+  isValidationRequired,
   parsePersonalizedPage,
 } from "@/lib/hn/scrape";
 import { describe, expect, it } from "vitest";
@@ -47,6 +48,11 @@ describe("login state detection", () => {
   it("detects logged in pages by logout link", () => {
     expect(isLoggedIn(read("logged-in.html"))).toBe(true);
     expect(isLoggedIn(read("login-bad.html"))).toBe(false);
+  });
+  it("detects HN's anti-bot captcha challenge", () => {
+    expect(isValidationRequired(read("login-captcha.html"))).toBe(true);
+    expect(isValidationRequired(read("login-bad.html"))).toBe(false);
+    expect(isValidationRequired(read("logged-in.html"))).toBe(false);
   });
 });
 

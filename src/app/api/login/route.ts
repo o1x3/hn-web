@@ -10,7 +10,7 @@
  */
 
 import { hnFetch } from "@/lib/fetcher";
-import { isBadLogin } from "@/lib/hn/scrape";
+import { isBadLogin, isValidationRequired } from "@/lib/hn/scrape";
 import { getSession } from "@/lib/session";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -38,10 +38,20 @@ export async function POST(req: NextRequest) {
     .find((v): v is string => !!v && v !== "" && v !== "x");
 
   if (!userCookie) {
-    // No cookie → either bad credentials or unexpected response. Inspect body.
+    // No cookie → bad credentials, captcha challenge, or unexpected response.
     const html = await res.text().catch(() => "");
     if (isBadLogin(html)) {
       return NextResponse.json({ ok: false, error: "Bad login" }, { status: 401 });
+    }
+    if (isValidationRequired(html)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "HN is asking for a captcha (anti-bot). Sign in at news.ycombinator.com once, then come back.",
+        },
+        { status: 429 },
+      );
     }
     return NextResponse.json(
       { ok: false, error: "Login response missing session cookie" },

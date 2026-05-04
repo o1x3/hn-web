@@ -42,8 +42,11 @@ export function ReplyForm({
     );
   }
 
-  async function onSubmit(formData: FormData) {
-    const text = String(formData.get("text") ?? "").trim();
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy) return;
+    const fd = new FormData(e.currentTarget);
+    const text = String(fd.get("text") ?? "").trim();
     if (!text) return;
     setBusy(true);
     const res = await replyAction(parentId, text);
@@ -59,14 +62,7 @@ export function ReplyForm({
   }
 
   return (
-    <form
-      action={onSubmit}
-      className="grid gap-2 mt-2"
-      onSubmit={(e) => {
-        // Let the action handle it; React 19 supports both action="" and onSubmit.
-        if (busy) e.preventDefault();
-      }}
-    >
+    <form onSubmit={handleSubmit} className="grid gap-2 mt-2">
       <CommentEditor busy={busy} onCancel={compact ? () => setOpen(false) : undefined} />
     </form>
   );

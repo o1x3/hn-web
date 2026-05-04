@@ -62,6 +62,16 @@ export function isBadLogin(html: string): boolean {
   return /Bad login\./i.test(html);
 }
 
+/**
+ * Detect HN's anti-bot interstitial: "Validation required" page that asks for
+ * a reCAPTCHA. Triggered by elevated request rates from an IP. We can't solve
+ * the captcha through this client, so the user must either wait or log in
+ * directly on news.ycombinator.com.
+ */
+export function isValidationRequired(html: string): boolean {
+  return /Validation required/i.test(html) || /g-recaptcha/.test(html);
+}
+
 /** Parsed row from /threads, /submitted, /favorites, /upvoted. */
 export interface PersonalizedRow {
   id: number;
