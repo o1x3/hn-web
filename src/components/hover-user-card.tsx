@@ -290,13 +290,20 @@ const tabClass = cn(
   "data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary",
 );
 
+/**
+ * Sparkline of recent post scores. We log-scale (HN points are heavy-tailed:
+ * one viral post would flatten the rest) and apply a 3-tap moving average so
+ * trends read clearly even when the underlying series is jittery.
+ */
 function Sparkline({ points }: { points: number[] }) {
   if (points.length < 2) return null;
-  const max = Math.max(...points, 1);
+  const logged = points.map((v) => Math.log1p(Math.max(0, v)));
+  const smoothed = movingAverage(logged, 3);
+  const max = Math.max(...smoothed, 1);
   const w = 200;
   const h = 24;
-  const stepX = w / (points.length - 1);
-  const path = points
+  const stepX = w / (smoothed.length - 1);
+  const path = smoothed
     .map((v, i) => {
       const x = i * stepX;
       const y = h - (v / max) * (h - 2) - 1;
@@ -305,8 +312,22 @@ function Sparkline({ points }: { points: number[] }) {
     .join(" ");
   return (
     <svg width={w} height={h} className="text-primary" role="img" aria-labelledby="sparkline-title">
-      <title id="sparkline-title">Recent post scores</title>
+      <title id="sparkline-title">Recent post scores (log-scaled, smoothed)</title>
       <path d={path} fill="none" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
+}
+
+function movingAverage(xs: number[], window: number): number[] {
+  if (window <= 1) return xs;
+  const half = Math.floor(window / 2);
+  const out: number[] = [];
+  for (let i = 0; i < xs.length; i++) {
+    const lo = Math.max(0, i - half);
+    const hi = Math.min(xs.length, i + half + 1);
+    let sum = 0;
+    for (let j = lo; j < hi; j++) sum += xs[j];
+    out.push(sum / (hi - lo));
+  }
+  return out;
 }

@@ -1,3 +1,4 @@
+import { ListUpdatesPill } from "@/components/list-updates-pill";
 import { LoadMore } from "@/components/load-more";
 import { StoryCard } from "@/components/story-card";
 import { batchItems, getList } from "@/lib/hn/firebase";
@@ -18,6 +19,7 @@ export async function StoryList({
 
   return (
     <div className="flex flex-col gap-2">
+      <ListUpdatesPill kind={kind} initialTopId={items[0]?.id ?? null} />
       {items.map((item, i) => (
         <StoryCard key={item.id} item={item} rank={i + 1} loggedIn={loggedIn} />
       ))}

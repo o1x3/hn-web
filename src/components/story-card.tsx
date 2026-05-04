@@ -33,11 +33,11 @@ export function StoryCard({
       data-id={item.id}
       data-href={item.url ?? ""}
       className={cn(
-        "group relative flex gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:border-border/80",
+        "group relative flex gap-1.5 rounded-lg border border-border bg-card p-2 sm:gap-2 sm:p-3 transition-colors hover:border-border/80",
         "data-[selected=true]:ring-2 data-[selected=true]:ring-primary/60",
       )}
     >
-      <div className="flex flex-col items-center gap-1 min-w-[2.5rem]">
+      <div className="flex flex-col items-center gap-1 min-w-[2rem] sm:min-w-[2.5rem]">
         {historicalSnapshot ? (
           <span
             className="text-xs text-muted-foreground tabular-nums"
@@ -55,7 +55,7 @@ export function StoryCard({
           {rank ? (
             <span className="text-xs text-muted-foreground tabular-nums">{rank}.</span>
           ) : null}
-          <h2 className="text-base font-semibold leading-snug">
+          <h2 className="text-sm sm:text-base font-semibold leading-snug">
             <a
               href={internalUrl}
               target={isExternal ? "_blank" : undefined}

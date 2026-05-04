@@ -7,16 +7,25 @@ import { cn } from "@/lib/utils";
 import { ChevronUp } from "lucide-react";
 import * as React from "react";
 
+/**
+ * Vote toggle. Click while not voted → upvote; click while voted → unvote.
+ * Score updates optimistically and rolls back on error.
+ *
+ * Used for both stories and comments via `compact` (just the chevron, no score).
+ */
 export function VoteButton({
   itemId,
   initialScore,
   loggedIn,
   size = "md",
+  compact = false,
 }: {
   itemId: number;
   initialScore: number | null;
   loggedIn: boolean;
   size?: "sm" | "md";
+  /** Compact: omit the score line (used in comment headers). */
+  compact?: boolean;
 }) {
   const [voted, setVoted] = React.useState(false);
   const [score, setScore] = React.useState<number | null>(initialScore);
@@ -29,16 +38,20 @@ export function VoteButton({
       setLoginOpen(true);
       return;
     }
-    if (busy || voted) return;
+    if (busy) return;
+
+    const dir: "up" | "un" = voted ? "un" : "up";
+    const delta = dir === "up" ? 1 : -1;
 
     setBusy(true);
-    setVoted(true);
-    setScore((s) => (s == null ? s : s + 1));
+    setVoted(!voted);
+    setScore((s) => (s == null ? s : s + delta));
     try {
-      const res = await voteAction(itemId, "up");
+      const res = await voteAction(itemId, dir);
       if (!res.ok) {
-        setVoted(false);
-        setScore((s) => (s == null ? s : s - 1));
+        // Roll back on failure
+        setVoted(voted);
+        setScore((s) => (s == null ? s : s - delta));
         toast.push(res.error, "error");
         if (res.needsLogin) setLoginOpen(true);
       }
@@ -55,6 +68,7 @@ export function VoteButton({
         onClick={onClick}
         aria-pressed={voted}
         aria-label={voted ? "Upvoted" : "Upvote"}
+        title={voted ? "Click to unvote" : "Upvote"}
         disabled={busy}
         className={cn(
           "flex flex-col items-center gap-0.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors",
@@ -62,7 +76,7 @@ export function VoteButton({
         )}
       >
         <ChevronUp className={dim} strokeWidth={2.4} />
-        {score != null ? (
+        {!compact && score != null ? (
           <span
             className={cn(
               "text-xs font-semibold tabular-nums",

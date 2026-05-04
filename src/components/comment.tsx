@@ -3,6 +3,7 @@
 import { BookmarkButton } from "@/components/bookmark-button";
 import { HoverUserCard } from "@/components/hover-user-card";
 import { ReplyForm } from "@/components/reply-form";
+import { VoteButton } from "@/components/vote-button";
 import type { CommentNode } from "@/lib/hn/types";
 import { sanitizeHnHtml } from "@/lib/sanitize";
 import { relativeTime } from "@/lib/time";
@@ -49,7 +50,10 @@ export function Comment({
 
   if ((node.dead || node.deleted) && !showDead) return null;
 
-  const indent = Math.min(depth, 8) * 12;
+  // Slightly tighter than the 12px we shipped originally — keeps deeply
+  // nested threads readable on phones without giving up the visual hierarchy
+  // on desktop.
+  const indent = Math.min(depth, 8) * 8;
   const childCount = countDescendants(node.children);
   const isNew =
     typeof lastVisitedAt === "number" && lastVisitedAt > 0 && node.createdAt * 1000 > lastVisitedAt;
@@ -89,6 +93,9 @@ export function Comment({
         >
           <ChevronDown className={cn("size-3 transition-transform", collapsed && "-rotate-90")} />
         </button>
+        {!node.dead && !node.deleted ? (
+          <VoteButton itemId={node.id} initialScore={null} loggedIn={loggedIn} size="sm" compact />
+        ) : null}
         {isNew ? (
           <span
             className="inline-flex h-4 items-center rounded bg-primary/15 px-1.5 text-[10px] font-medium uppercase tracking-wide text-primary"
