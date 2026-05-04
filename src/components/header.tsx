@@ -13,10 +13,10 @@ export function Header({ username }: { username: string | null }) {
           className="flex items-center gap-2 font-semibold tracking-tight"
           aria-label="Home"
         >
-          <span className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold">
-            Y
+          <span className="inline-flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-[11px] font-extrabold tracking-tight">
+            hn
           </span>
-          <span className="hidden sm:inline">hn-reddit</span>
+          <span className="hidden sm:inline">hn</span>
         </Link>
 
         <form action="/search" className="ml-2 hidden max-w-md flex-1 items-center gap-2 sm:flex">

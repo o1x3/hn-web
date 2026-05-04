@@ -1,12 +1,12 @@
-# hn-reddit
+# hn
 
-A Reddit-style web client for Hacker News. **Unaffiliated with Y Combinator.**
+A modern, open-source web client for Hacker News. **Unaffiliated with Y Combinator.**
 
 Reads use the public [HN Firebase API](https://github.com/HackerNews/API) and the
 [Algolia HN Search API](https://hn.algolia.com/api). User-initiated writes (login,
 vote, favorite, comment, submit) are proxied through `news.ycombinator.com` on
-your behalf — your password is forwarded once at login and never stored. Only your
-HN session cookie is kept, encrypted at rest, until you log out.
+your behalf — your password is forwarded once at login and never stored. Only
+your HN session cookie is kept, encrypted at rest, until you log out.
 
 ## Quickstart
 
@@ -34,7 +34,7 @@ bun run test        # vitest run
 ## Stack
 
 - Next.js 15 (App Router, RSC, Server Actions)
-- TypeScript, Tailwind v4, shadcn/ui
+- TypeScript, Tailwind v4, custom shadcn-style primitives
 - TanStack Query for client islands (infinite scroll, optimistic votes)
 - iron-session for encrypted cookie sessions
 - linkedom for HN HTML scraping (vote `auth`, comment `hmac`, submit `fnid`)

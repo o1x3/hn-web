@@ -30,7 +30,7 @@ export function ShortcutHelp({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Keyboard shortcuts</DialogTitle>
-          <DialogDescription>Reddit-style. Use j/k to navigate.</DialogDescription>
+          <DialogDescription>Use j/k to navigate the story list.</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-[auto,1fr] gap-x-6 gap-y-2 text-sm">
           {SHORTCUTS.map(([key, label]) => (

@@ -1,7 +1,7 @@
 {
-  "name": "hn-reddit",
-  "short_name": "hn-reddit",
-  "description": "Reddit-style web client for Hacker News",
+  "name": "hn",
+  "short_name": "hn",
+  "description": "A modern web client for Hacker News",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121212",

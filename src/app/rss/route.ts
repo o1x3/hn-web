@@ -43,7 +43,7 @@ function renderRss(
     show: "Show HN",
     job: "Jobs",
   };
-  const channelTitle = `hn-reddit · ${titles[kind]}`;
+  const channelTitle = `hn · ${titles[kind]}`;
   const feedLink = `${origin}/rss?kind=${kind}`;
   const channelDesc = `Latest from Hacker News (${kind})`;
   return `<?xml version="1.0" encoding="UTF-8"?>

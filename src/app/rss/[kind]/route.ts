@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ kind: strin
   const origin = req.nextUrl.origin;
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel>
-<title>hn-reddit · ${kind}</title>
+<title>hn · ${kind}</title>
 <link>${origin}/${kind}</link>
 <description>Latest ${kind} stories</description>
 ${items

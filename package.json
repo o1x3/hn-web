@@ -1,8 +1,8 @@
 {
-  "name": "hn-reddit",
+  "name": "hn",
   "version": "0.1.0",
   "private": true,
-  "description": "Reddit-style web client for Hacker News (unaffiliated with Y Combinator)",
+  "description": "A modern, open-source web client for Hacker News (unaffiliated with Y Combinator)",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",

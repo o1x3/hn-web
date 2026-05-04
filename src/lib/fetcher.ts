@@ -4,8 +4,7 @@
  * than block if the client misbehaves.
  */
 
-const DEFAULT_USER_AGENT =
-  process.env.HN_USER_AGENT ?? "hn-reddit/0.1 (+https://github.com/PLACEHOLDER/PLACEHOLDER)";
+const DEFAULT_USER_AGENT = process.env.HN_USER_AGENT ?? "hn/0.1 (+https://github.com/o1x3/hn-web)";
 
 export interface FetchOptions extends RequestInit {
   /** Total attempts including the first; defaults to 3. */

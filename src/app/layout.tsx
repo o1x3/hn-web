@@ -10,17 +10,17 @@ import { readSession } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: {
-    default: "hn-reddit · A Reddit-style Hacker News client",
-    template: "%s · hn-reddit",
+    default: "hn · A modern Hacker News client",
+    template: "%s · hn",
   },
   description:
-    "A Reddit-style web client for Hacker News. Read, vote, comment, submit. Unaffiliated with Y Combinator.",
-  applicationName: "hn-reddit",
+    "A modern, open-source web client for Hacker News. Read, vote, comment, submit. Unaffiliated with Y Combinator.",
+  applicationName: "hn",
   manifest: "/manifest.webmanifest",
   metadataBase: new URL("http://localhost:3000"),
   openGraph: {
     type: "website",
-    siteName: "hn-reddit",
+    siteName: "hn",
   },
 };
 

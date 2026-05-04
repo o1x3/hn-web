@@ -76,7 +76,7 @@ export function LoginDialog({
             . The password is forwarded once and discarded; only the encrypted HN session cookie is
             stored on this server until you log out.{" "}
             <a
-              href="https://github.com/PLACEHOLDER/PLACEHOLDER"
+              href="https://github.com/o1x3/hn-web"
               target="_blank"
               rel="noopener noreferrer"
               className="underline"
