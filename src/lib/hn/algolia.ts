@@ -1,10 +1,6 @@
 import { TTL, cached } from "@/lib/cache";
 import { hnFetchJson } from "@/lib/fetcher";
-import {
-  type AlgoliaSearchResponse,
-  type AlgoliaTreeNode,
-  cacheKeys,
-} from "@/lib/hn/types";
+import { type AlgoliaSearchResponse, type AlgoliaTreeNode, cacheKeys } from "@/lib/hn/types";
 
 const BASE = "https://hn.algolia.com/api/v1";
 

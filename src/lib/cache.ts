@@ -8,18 +8,19 @@ export interface Cache {
 }
 
 class LRUAdapter implements Cache {
-  // Keep up to 10k entries, evict by TTL or LRU.
-  private readonly inner = new LRUCache<string, unknown>({
+  // lru-cache requires V extends {}; wrap arbitrary values in an envelope.
+  private readonly inner = new LRUCache<string, { v: unknown }>({
     max: 10_000,
     ttl: 60_000, // default 60s, overridden per-set
     ttlAutopurge: true,
   });
 
   async get<T>(key: string): Promise<T | null> {
-    return (this.inner.get(key) as T | undefined) ?? null;
+    const hit = this.inner.get(key);
+    return hit ? (hit.v as T) : null;
   }
   async set<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
-    this.inner.set(key, value as unknown, { ttl: ttlSeconds * 1000 });
+    this.inner.set(key, { v: value }, { ttl: ttlSeconds * 1000 });
   }
   async invalidate(key: string): Promise<void> {
     this.inner.delete(key);

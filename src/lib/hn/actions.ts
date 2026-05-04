@@ -16,15 +16,15 @@
 
 import { getCache } from "@/lib/cache";
 import { hnFetch, hnFetchText } from "@/lib/fetcher";
-import { checkWriteRateLimit } from "@/lib/rate-limit";
-import { getSession } from "@/lib/session";
-import { cacheKeys } from "@/lib/hn/types";
 import {
   extractCommentHmac,
   extractSubmitFormTokens,
   extractVoteAuth,
   isLoggedIn,
 } from "@/lib/hn/scrape";
+import { cacheKeys } from "@/lib/hn/types";
+import { checkWriteRateLimit } from "@/lib/rate-limit";
+import { getSession } from "@/lib/session";
 
 const HN = "https://news.ycombinator.com";
 
@@ -32,7 +32,9 @@ export type ActionResult<T = unknown> =
   | { ok: true; data: T }
   | { ok: false; error: string; needsLogin?: boolean };
 
-async function authedHeaders(): Promise<{ ok: true; headers: HeadersInit; username: string } | { ok: false; error: string }> {
+async function authedHeaders(): Promise<
+  { ok: true; headers: HeadersInit; username: string } | { ok: false; error: string }
+> {
   const session = await getSession();
   if (!session.hnCookie || !session.username) {
     return { ok: false, error: "Not logged in" };
@@ -135,7 +137,10 @@ export async function replyAction(
   if (!auth.ok) return { ok: false, error: auth.error, needsLogin: true };
   if (!text.trim()) return { ok: false, error: "Comment text is empty" };
 
-  const html = await fetchAuthedHtml(`/reply?id=${parentId}&goto=item%3Fid%3D${parentId}`, auth.headers);
+  const html = await fetchAuthedHtml(
+    `/reply?id=${parentId}&goto=item%3Fid%3D${parentId}`,
+    auth.headers,
+  );
   const hmac = extractCommentHmac(html);
   if (!hmac) return { ok: false, error: "Could not find hmac token" };
 

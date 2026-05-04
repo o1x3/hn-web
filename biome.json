@@ -32,6 +32,9 @@
         "noExplicitAny": "warn",
         "noArrayIndexKey": "off"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
       "style": {
         "noNonNullAssertion": "warn",
         "useImportType": "error"

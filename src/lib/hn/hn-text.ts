@@ -15,9 +15,7 @@
  * indentation — may diverge from HN. Add fixtures as we find them.
  */
 
-export type HnNode =
-  | { type: "paragraph"; children: HnInline[] }
-  | { type: "code"; text: string };
+export type HnNode = { type: "paragraph"; children: HnInline[] } | { type: "code"; text: string };
 
 export type HnInline =
   | { type: "text"; value: string }

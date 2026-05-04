@@ -38,9 +38,7 @@ export function extractCommentHmac(html: string): string | null {
 }
 
 /** Extract `fnid` and `fnop` from /submit. Both are required to POST a story. */
-export function extractSubmitFormTokens(
-  html: string,
-): { fnid: string; fnop: string } | null {
+export function extractSubmitFormTokens(html: string): { fnid: string; fnop: string } | null {
   const { document } = parseHTML(html);
   const fnid = document.querySelector<HTMLInputElement>('input[name="fnid"]');
   const fnop = document.querySelector<HTMLInputElement>('input[name="fnop"]');

@@ -9,12 +9,17 @@
 const lastAt = new Map<string, number>();
 const MIN_INTERVAL_MS = 500;
 
-export function checkWriteRateLimit(key: string, now = Date.now()): {
-  ok: true;
-} | {
-  ok: false;
-  retryAfterMs: number;
-} {
+export function checkWriteRateLimit(
+  key: string,
+  now = Date.now(),
+):
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      retryAfterMs: number;
+    } {
   const prev = lastAt.get(key);
   if (prev !== undefined && now - prev < MIN_INTERVAL_MS) {
     return { ok: false, retryAfterMs: MIN_INTERVAL_MS - (now - prev) };

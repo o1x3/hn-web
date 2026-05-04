@@ -65,10 +65,7 @@ export async function getUpdates(): Promise<{ items: number[]; profiles: string[
  * and slow for big threads — prefer Algolia.getItemTree. Used only when
  * Algolia 404s on a freshly-posted item.
  */
-export async function fanoutCommentTree(
-  rootId: number,
-  maxDepth = 6,
-): Promise<RawItem[]> {
+export async function fanoutCommentTree(rootId: number, maxDepth = 6): Promise<RawItem[]> {
   const visited = new Set<number>();
   const out: RawItem[] = [];
 

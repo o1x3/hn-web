@@ -17,13 +17,7 @@ export interface FetchOptions extends RequestInit {
 }
 
 export async function hnFetch(url: string, opts: FetchOptions = {}): Promise<Response> {
-  const {
-    retries = 3,
-    backoffMs = 200,
-    timeoutMs = 10_000,
-    headers,
-    ...rest
-  } = opts;
+  const { retries = 3, backoffMs = 200, timeoutMs = 10_000, headers, ...rest } = opts;
 
   let lastErr: unknown;
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -41,20 +35,14 @@ export async function hnFetch(url: string, opts: FetchOptions = {}): Promise<Res
       });
       clearTimeout(timer);
       // Retry on 5xx and 429; succeed otherwise.
-      if (res.status >= 500 || res.status === 429) {
-        if (attempt < retries - 1) {
-          await sleep(backoffMs * 2 ** attempt);
-          continue;
-        }
-      }
-      return res;
+      const retriable = res.status >= 500 || res.status === 429;
+      if (!retriable || attempt === retries - 1) return res;
+      await sleep(backoffMs * 2 ** attempt);
     } catch (err) {
       clearTimeout(timer);
       lastErr = err;
-      if (attempt < retries - 1) {
-        await sleep(backoffMs * 2 ** attempt);
-        continue;
-      }
+      if (attempt === retries - 1) break;
+      await sleep(backoffMs * 2 ** attempt);
     }
   }
   throw lastErr ?? new Error(`hnFetch failed: ${url}`);
