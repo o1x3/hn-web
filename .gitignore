@@ -40,5 +40,8 @@ next-env.d.ts
 # project-specific: docs/ is a private working ledger, never commit
 docs/
 
+# claude code local config
+.claude/
+
 # spec source (keep on disk, never commit)
 compass_artifact_*.md
