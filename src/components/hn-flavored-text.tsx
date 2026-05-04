@@ -11,7 +11,7 @@ export function HnFlavoredText({
 }) {
   const nodes = parseHnText(text);
   return (
-    <div className={cn("hn-text", className)}>
+    <div data-hn-text className={cn("hn-text", className)}>
       {nodes.map((n, i) => (
         <RenderNode key={i} node={n} />
       ))}

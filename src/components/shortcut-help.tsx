@@ -15,6 +15,11 @@ const SHORTCUTS: [string, string][] = [
   ["c", "Open story comments"],
   ["u", "Upvote selected story"],
   ["r", "Reply to selected story"],
+  ["J / K", "Next / prev top-level comment"],
+  ["H / L", "Prev / next sibling at same depth"],
+  ["P", "Jump to parent comment"],
+  ["[ / ]", "Collapse / expand subtree"],
+  ["n / N", "Next / prev unread comment"],
   ["?", "Show this help"],
 ];
 

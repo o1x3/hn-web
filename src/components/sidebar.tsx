@@ -1,6 +1,9 @@
+import { DatePickerButton } from "@/components/date-picker";
 import { cn } from "@/lib/utils";
 import {
+  Bookmark,
   Briefcase,
+  Clock,
   Flame,
   HelpCircle,
   History,
@@ -36,6 +39,11 @@ const PERSONAL: NavItem[] = [
   { href: "/submitted", label: "Submitted", icon: <History className="size-4" />, authed: true },
 ];
 
+const LOCAL: NavItem[] = [
+  { href: "/bookmarks", label: "Bookmarks", icon: <Bookmark className="size-4" /> },
+  { href: "/history", label: "History", icon: <Clock className="size-4" /> },
+];
+
 export function Sidebar({
   loggedIn,
   pathname,
@@ -60,6 +68,14 @@ export function Sidebar({
           ))}
         </Section>
       ) : null}
+      <Section label="Local">
+        {LOCAL.map((it) => (
+          <NavLink key={it.href} item={it} active={pathname === it.href} />
+        ))}
+        <li className="px-3 pt-1">
+          <DatePickerButton />
+        </li>
+      </Section>
       <Section label="Misc">
         <a
           href="/rss"

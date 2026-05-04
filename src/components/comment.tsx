@@ -1,5 +1,6 @@
 "use client";
 
+import { BookmarkButton } from "@/components/bookmark-button";
 import { HoverUserCard } from "@/components/hover-user-card";
 import { ReplyForm } from "@/components/reply-form";
 import type { CommentNode } from "@/lib/hn/types";
@@ -15,17 +16,33 @@ import * as React from "react";
  *
  * Reddit signature: clicking the vertical guide-line (left rail) collapses
  * the subtree. Also clickable header-collapse with `[-]` indicator.
+ *
+ * F2: when `lastVisitedAt` is set, comments newer than that timestamp are
+ * marked with a `↑` indicator and `data-new="true"` for `n`/`Shift+n` jumps.
+ * The orange dot bubbles up onto a collapsed parent via `bubbledNew`.
+ *
+ * F3/F6: emits `data-comment-id`, `data-depth`, `data-parent-id`,
+ * `data-story-id` so the highlight overlay and control pad can navigate.
  */
 export function Comment({
   node,
   depth,
   loggedIn,
   showDead,
+  lastVisitedAt,
+  storyId,
+  parentId,
 }: {
   node: CommentNode;
   depth: number;
   loggedIn: boolean;
   showDead: boolean;
+  /** Unix seconds; comments newer than this get the new-reply marker. */
+  lastVisitedAt?: number;
+  /** Pass-through so the comment knows which story it belongs to. */
+  storyId?: number;
+  /** Pass-through so the control-pad can find the parent in O(1). */
+  parentId?: number;
 }) {
   const [collapsed, setCollapsed] = React.useState(false);
   const [showReply, setShowReply] = React.useState(false);
@@ -34,10 +51,23 @@ export function Comment({
 
   const indent = Math.min(depth, 8) * 12;
   const childCount = countDescendants(node.children);
+  const isNew =
+    typeof lastVisitedAt === "number" && lastVisitedAt > 0 && node.createdAt * 1000 > lastVisitedAt;
+  const newInSubtree = collapsed ? countNewInSubtree(node.children, lastVisitedAt) : 0;
+  const bubbledNew = collapsed && newInSubtree > 0;
 
   return (
     <article
-      className={cn("group relative", depth > 0 && "border-l border-border/60 hover:border-border")}
+      data-comment-id={node.id}
+      data-depth={depth}
+      data-parent-id={parentId ?? ""}
+      data-story-id={storyId ?? ""}
+      data-new={isNew ? "true" : undefined}
+      className={cn(
+        "group relative",
+        depth > 0 && "border-l border-border/60 hover:border-border",
+        isNew && "is-new-reply",
+      )}
       style={{ paddingLeft: depth > 0 ? 12 : 0, marginLeft: depth > 0 ? indent : 0 }}
     >
       {/* Click target along the guide-line collapses subtree. */}
@@ -59,6 +89,14 @@ export function Comment({
         >
           <ChevronDown className={cn("size-3 transition-transform", collapsed && "-rotate-90")} />
         </button>
+        {isNew ? (
+          <span
+            className="inline-flex h-4 items-center rounded bg-primary/15 px-1.5 text-[10px] font-medium uppercase tracking-wide text-primary"
+            title="New since your last visit"
+          >
+            ↑ new
+          </span>
+        ) : null}
         {node.author ? (
           <HoverUserCard username={node.author}>
             <Link
@@ -80,16 +118,38 @@ export function Comment({
             ({childCount} {childCount === 1 ? "reply" : "replies"})
           </span>
         ) : null}
+        {bubbledNew ? (
+          <span
+            className="inline-flex h-4 items-center rounded bg-primary/15 px-1.5 text-[10px] font-medium uppercase tracking-wide text-primary"
+            title={`${newInSubtree} new in this subtree`}
+          >
+            +{newInSubtree} new
+          </span>
+        ) : null}
         {(node.dead || node.deleted) && (
           <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
             {node.deleted ? "deleted" : "dead"}
           </span>
         )}
+        <BookmarkButton
+          className="ml-auto"
+          kind="comment"
+          refId={String(node.id)}
+          args={{
+            commentId: node.id,
+            storyId,
+            author: node.author ?? undefined,
+            textHtml: node.textHtml,
+            time: node.createdAt,
+            permalink: `/item/${node.id}`,
+          }}
+        />
       </header>
 
       {!collapsed ? (
         <>
           <div
+            data-hn-text
             className="hn-text text-sm py-1"
             // Sanitized at the boundary in firebase/algolia. Defensive sanitize again.
             dangerouslySetInnerHTML={{ __html: sanitizeHnHtml(node.textHtml) }}
@@ -97,6 +157,7 @@ export function Comment({
           <div className="flex items-center gap-3 text-xs text-muted-foreground py-1">
             <button
               type="button"
+              data-action="reply"
               onClick={() => setShowReply((s) => !s)}
               className="inline-flex items-center gap-1 hover:text-foreground"
             >
@@ -117,6 +178,9 @@ export function Comment({
                   depth={depth + 1}
                   loggedIn={loggedIn}
                   showDead={showDead}
+                  lastVisitedAt={lastVisitedAt}
+                  storyId={storyId}
+                  parentId={node.id}
                 />
               ))}
             </div>
@@ -130,5 +194,15 @@ export function Comment({
 function countDescendants(nodes: CommentNode[]): number {
   let n = 0;
   for (const c of nodes) n += 1 + countDescendants(c.children);
+  return n;
+}
+
+function countNewInSubtree(nodes: CommentNode[], lastVisitedAt?: number): number {
+  if (!lastVisitedAt) return 0;
+  let n = 0;
+  for (const c of nodes) {
+    if (c.createdAt * 1000 > lastVisitedAt) n += 1;
+    n += countNewInSubtree(c.children, lastVisitedAt);
+  }
   return n;
 }

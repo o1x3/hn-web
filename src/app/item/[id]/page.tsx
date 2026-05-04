@@ -1,7 +1,9 @@
-import { Comment } from "@/components/comment";
+import { BookmarkButton } from "@/components/bookmark-button";
 import { DomainFavicon } from "@/components/domain-favicon";
 import { FavoriteButton } from "@/components/favorite-button";
+import { HistoryRecorder } from "@/components/history-recorder";
 import { HoverUserCard } from "@/components/hover-user-card";
+import { ItemCommentSection } from "@/components/item-comment-section";
 import { ReplyForm } from "@/components/reply-form";
 import { VoteButton } from "@/components/vote-button";
 import { getItemTree } from "@/lib/hn/algolia";
@@ -60,6 +62,7 @@ export default async function ItemPage({ params }: PageProps) {
 
   return (
     <article className="grid gap-6">
+      <HistoryRecorder kind="story" refId={String(item.id)} title={item.title ?? undefined} />
       <header className="rounded-lg border border-border bg-card p-4">
         <div className="flex gap-3">
           <div className="flex flex-col items-center gap-1 min-w-[2.5rem]">
@@ -105,9 +108,23 @@ export default async function ItemPage({ params }: PageProps) {
                 {item.descendants ?? 0} comments
               </span>
               <FavoriteButton itemId={item.id} loggedIn={loggedIn} />
+              <BookmarkButton
+                kind="story"
+                refId={String(item.id)}
+                args={{
+                  storyId: item.id,
+                  title: item.title,
+                  url: item.url,
+                  by: item.by,
+                  time: item.time,
+                  score: item.score,
+                  descendants: item.descendants,
+                }}
+              />
             </div>
             {item.text ? (
               <div
+                data-hn-text
                 className="hn-text mt-3 text-sm"
                 dangerouslySetInnerHTML={{ __html: sanitizeHnHtml(item.text) }}
               />
@@ -123,13 +140,12 @@ export default async function ItemPage({ params }: PageProps) {
 
       <section aria-label="Comments" className="grid gap-1">
         <h2 className="sr-only">Comments</h2>
-        {comments.length === 0 ? (
-          <div className="text-sm text-muted-foreground">No comments yet.</div>
-        ) : (
-          comments.map((c) => (
-            <Comment key={c.id} node={c} depth={0} loggedIn={loggedIn} showDead={false} />
-          ))
-        )}
+        <ItemCommentSection
+          storyId={item.id}
+          comments={comments}
+          loggedIn={loggedIn}
+          showDead={false}
+        />
       </section>
     </article>
   );

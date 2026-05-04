@@ -1,6 +1,8 @@
+import { BookmarkButton } from "@/components/bookmark-button";
 import { DomainFavicon } from "@/components/domain-favicon";
 import { FavoriteButton } from "@/components/favorite-button";
 import { HoverUserCard } from "@/components/hover-user-card";
+import { NewReplyBadge } from "@/components/new-reply-badge";
 import { VoteButton } from "@/components/vote-button";
 import type { RawItem } from "@/lib/hn/types";
 import { relativeTime } from "@/lib/time";
@@ -12,10 +14,13 @@ export function StoryCard({
   item,
   rank,
   loggedIn,
+  historicalSnapshot = false,
 }: {
   item: RawItem;
   rank?: number;
   loggedIn: boolean;
+  /** F7: historical front-page render — hides interactive vote button. */
+  historicalSnapshot?: boolean;
 }) {
   const host = hostFromUrl(item.url);
   const isJob = item.type === "job";
@@ -33,7 +38,16 @@ export function StoryCard({
       )}
     >
       <div className="flex flex-col items-center gap-1 min-w-[2.5rem]">
-        <VoteButton itemId={item.id} initialScore={item.score ?? null} loggedIn={loggedIn} />
+        {historicalSnapshot ? (
+          <span
+            className="text-xs text-muted-foreground tabular-nums"
+            title="Historical snapshot — voting is on the live HN page"
+          >
+            {item.score ?? 0}
+          </span>
+        ) : (
+          <VoteButton itemId={item.id} initialScore={item.score ?? null} loggedIn={loggedIn} />
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
@@ -83,7 +97,21 @@ export function StoryCard({
             <MessageSquare className="size-3" />
             {item.descendants ?? 0}
           </Link>
-          <FavoriteButton itemId={item.id} loggedIn={loggedIn} />
+          <NewReplyBadge storyId={item.id} currentDescendants={item.descendants ?? 0} />
+          {historicalSnapshot ? null : <FavoriteButton itemId={item.id} loggedIn={loggedIn} />}
+          <BookmarkButton
+            kind="story"
+            refId={String(item.id)}
+            args={{
+              storyId: item.id,
+              title: item.title,
+              url: item.url,
+              by: item.by,
+              time: item.time,
+              score: item.score,
+              descendants: item.descendants,
+            }}
+          />
         </footer>
       </div>
     </article>

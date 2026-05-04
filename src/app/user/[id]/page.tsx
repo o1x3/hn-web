@@ -1,3 +1,4 @@
+import { HistoryRecorder } from "@/components/history-recorder";
 import { StoryCard } from "@/components/story-card";
 import { getAlgoliaUser, getUserActivity } from "@/lib/hn/algolia";
 import { getUser } from "@/lib/hn/firebase";
@@ -49,6 +50,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="grid gap-6">
+      <HistoryRecorder kind="user" refId={id} title={user?.id ?? algolia?.username ?? id} />
       <header className="rounded-lg border border-border bg-card p-4">
         <h1 className="text-2xl font-semibold">{user?.id ?? algolia?.username ?? id}</h1>
         <div className="mt-1 text-sm text-muted-foreground">

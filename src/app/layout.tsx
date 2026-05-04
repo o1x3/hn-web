@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { Providers } from "@/components/providers";
+import { SelectionPopup } from "@/components/selection-popup";
 import { Sidebar } from "@/components/sidebar";
 import { SwRegister } from "@/components/sw-register";
 import { readSession } from "@/lib/session";
@@ -48,6 +49,7 @@ export default async function RootLayout({
             </main>
           </div>
           <KeyboardShortcuts />
+          <SelectionPopup />
           <SwRegister />
         </Providers>
       </body>
