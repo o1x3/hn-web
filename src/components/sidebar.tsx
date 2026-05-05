@@ -1,4 +1,5 @@
 import { DatePickerButton } from "@/components/date-picker";
+import { InboxBadge } from "@/components/inbox-badge";
 import { cn } from "@/lib/utils";
 import {
   Bookmark,
@@ -8,6 +9,7 @@ import {
   HelpCircle,
   History,
   Home,
+  Inbox,
   MessageSquare,
   Sparkles,
   Star,
@@ -33,6 +35,7 @@ const PRIMARY: NavItem[] = [
 ];
 
 const PERSONAL: NavItem[] = [
+  { href: "/inbox", label: "Inbox", icon: <Inbox className="size-4" />, authed: true },
   { href: "/threads", label: "Threads", icon: <MessageSquare className="size-4" />, authed: true },
   { href: "/favorites", label: "Favorites", icon: <Star className="size-4" />, authed: true },
   { href: "/upvoted", label: "Upvoted", icon: <ThumbsUp className="size-4" />, authed: true },
@@ -47,9 +50,11 @@ const LOCAL: NavItem[] = [
 export function Sidebar({
   loggedIn,
   pathname,
+  username,
 }: {
   loggedIn: boolean;
   pathname?: string;
+  username?: string | null;
 }) {
   return (
     <nav
@@ -64,7 +69,12 @@ export function Sidebar({
       {loggedIn ? (
         <Section label="You">
           {PERSONAL.map((it) => (
-            <NavLink key={it.href} item={it} active={pathname === it.href} />
+            <NavLink
+              key={it.href}
+              item={it}
+              active={pathname === it.href}
+              trailing={it.href === "/inbox" ? <InboxBadge username={username ?? null} /> : null}
+            />
           ))}
         </Section>
       ) : null}
@@ -109,7 +119,11 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({
+  item,
+  active,
+  trailing,
+}: { item: NavItem; active: boolean; trailing?: ReactNode }) {
   return (
     <li>
       <Link
@@ -121,6 +135,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       >
         {item.icon}
         {item.label}
+        {trailing}
       </Link>
     </li>
   );

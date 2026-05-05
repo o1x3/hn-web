@@ -58,7 +58,11 @@ export default async function RootLayout({
             className="mx-auto flex w-full"
             style={{ maxWidth: "var(--reader-content-width, 80rem)" }}
           >
-            <Sidebar loggedIn={!!session?.username} pathname={pathname} />
+            <Sidebar
+              loggedIn={!!session?.username}
+              pathname={pathname}
+              username={session?.username ?? null}
+            />
             <main id="main" className="min-w-0 flex-1 px-4 py-4 md:px-6">
               {children}
             </main>
