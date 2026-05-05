@@ -94,6 +94,10 @@ export function useByIndex<S extends StoreName>(
     [query],
   );
   return useAsyncRead(
+    // `queryKey` is a stable string proxy for `query` (which may be an
+    // IDBKeyRange whose identity changes per render). Re-running on
+    // queryKey changes is exactly what we want.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: see above
     React.useCallback(async () => {
       if (!isIdbAvailable()) return [] as HnSchema[S]["value"][];
       const db = await openHnDb();
@@ -119,6 +123,9 @@ export function useById<S extends StoreName>(
   React.useEffect(() => subscribe(store, () => setTick((n) => n + 1)), [store]);
   const keyStr = String(key ?? "");
   return useAsyncRead(
+    // `keyStr` is the stable string proxy for `key`; re-running on its
+    // change is the desired behavior.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: see above
     React.useCallback(async () => {
       if (!isIdbAvailable() || key == null) return null;
       const db = await openHnDb();
@@ -139,6 +146,9 @@ function useAsyncRead<T>(
     isLoading: boolean;
     error: Error | null;
   }>({ data: null, isLoading: true, error: null });
+  // `tick` is intentionally a dep: it's the explicit re-run signal fired
+  // by the store pub/sub when the underlying data changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: see above
   React.useEffect(() => {
     let cancelled = false;
     setState((s) => ({ ...s, isLoading: true, error: null }));

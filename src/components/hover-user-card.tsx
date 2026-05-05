@@ -60,6 +60,7 @@ export function HoverUserCard({
   }
 
   // Restore pinned position from prefs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load is stable enough; reads from closure each call
   React.useEffect(() => {
     let cancelled = false;
     getPref<{ x: number; y: number }>(`userPopup.pin.${username}`).then((p) => {
@@ -72,8 +73,6 @@ export function HoverUserCard({
     return () => {
       cancelled = true;
     };
-    // load is stable enough for our needs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
   if (pinned && pos) {
