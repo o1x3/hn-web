@@ -40,6 +40,16 @@ export function runMigrations(
       db.createObjectStore("prefs", { keyPath: "key" });
     }
   }
+  if (oldVersion < 2) {
+    if (!db.objectStoreNames.contains("hidden")) {
+      const s = db.createObjectStore("hidden", { keyPath: "storyId" });
+      s.createIndex("by-hiddenAt", "hiddenAt");
+    }
+    if (!db.objectStoreNames.contains("collapsedThreads")) {
+      const s = db.createObjectStore("collapsedThreads", { keyPath: "id" });
+      s.createIndex("by-storyId", "storyId");
+    }
+  }
   // Future versions append here. Use `tx.objectStore(name)` to mutate
   // existing stores (e.g. add an index) without recreating data.
   void tx;

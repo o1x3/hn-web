@@ -92,7 +92,7 @@ export async function exportAll(): Promise<Backup> {
 export async function importAll(
   json: unknown,
   mode: "merge" | "replace",
-): Promise<{ counts: Record<StoreName, number> }> {
+): Promise<{ counts: Partial<Record<StoreName, number>> }> {
   const parsed = BackupSchema.parse(json);
   if (parsed.version > BACKUP_VERSION) {
     throw new Error(`Backup is from a newer version (${parsed.version})`);

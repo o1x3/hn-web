@@ -1,8 +1,12 @@
 "use client";
 
+import { IndexViewSwitcher } from "@/components/index-view-switcher";
 import { StoryCard } from "@/components/story-card";
+import { StoryTable } from "@/components/story-table";
 import { Button } from "@/components/ui/button";
+import { useHiddenIds } from "@/lib/hidden/store";
 import type { ListKind, RawItem } from "@/lib/hn/types";
+import { useIndexColumns, useIndexViewMode } from "@/lib/index-view/store";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import * as React from "react";
 
@@ -11,20 +15,25 @@ interface PageData {
   nextOffset: number | null;
 }
 
-export function LoadMore({
+export function StoryListClient({
   kind,
+  initialItems,
   allIds,
   pageSize,
-  initialOffset,
   loggedIn,
 }: {
   kind: ListKind;
+  initialItems: RawItem[];
   allIds: number[];
   pageSize: number;
-  initialOffset: number;
   loggedIn: boolean;
 }) {
+  const [viewMode] = useIndexViewMode();
+  const [columns] = useIndexColumns();
+  const hidden = useHiddenIds();
   const sentinelRef = React.useRef<HTMLDivElement>(null);
+
+  const initialOffset = initialItems.length;
 
   const query = useInfiniteQuery<PageData>({
     queryKey: ["story-list", kind, allIds.length],
@@ -56,29 +65,36 @@ export function LoadMore({
     return () => obs.disconnect();
   }, [query]);
 
-  const flat = query.data?.pages.flatMap((p) => p.items) ?? [];
+  const additional = query.data?.pages.flatMap((p) => p.items) ?? [];
+  const allItems = [...initialItems, ...additional].filter((it) => !hidden.has(it.id));
 
   return (
     <>
-      <div className="flex flex-col gap-2">
-        {flat.map((item, i) => (
-          <StoryCard key={item.id} item={item} rank={initialOffset + i + 1} loggedIn={loggedIn} />
-        ))}
-      </div>
+      <IndexViewSwitcher />
+      {viewMode === "table" ? (
+        <StoryTable items={allItems} columns={columns} loggedIn={loggedIn} />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {allItems.map((item, i) => (
+            <StoryCard key={item.id} item={item} rank={i + 1} loggedIn={loggedIn} />
+          ))}
+        </div>
+      )}
       <div ref={sentinelRef} className="h-1" />
-      {query.hasNextPage && !query.isFetchingNextPage ? (
+      {allIds.length > initialOffset + additional.length ? (
         <div className="py-3 text-center">
-          <Button variant="outline" size="sm" onClick={() => query.fetchNextPage()}>
-            Load more
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => query.fetchNextPage()}
+            disabled={query.isFetchingNextPage}
+          >
+            {query.isFetchingNextPage ? "Loading…" : "Load more"}
           </Button>
         </div>
-      ) : null}
-      {query.isFetchingNextPage ? (
-        <div className="py-3 text-center text-xs text-muted-foreground">Loading…</div>
-      ) : null}
-      {!query.hasNextPage && flat.length > 0 ? (
+      ) : (
         <div className="py-3 text-center text-xs text-muted-foreground">— end —</div>
-      ) : null}
+      )}
     </>
   );
 }

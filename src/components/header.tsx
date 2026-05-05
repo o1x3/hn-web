@@ -1,4 +1,5 @@
-import { ThemeToggle } from "@/components/theme-toggle";
+import { HistoryJump } from "@/components/history-jump";
+import { ThemePicker } from "@/components/theme-picker";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
 import { Search } from "lucide-react";
@@ -36,7 +37,8 @@ export function Header({ username }: { username: string | null }) {
           <Button asChild variant="outline" size="sm">
             <Link href="/submit">Submit</Link>
           </Button>
-          <ThemeToggle />
+          <HistoryJump />
+          <ThemePicker />
           <UserMenu username={username} />
         </div>
       </div>

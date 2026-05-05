@@ -5,6 +5,8 @@ import { HoverUserCard } from "@/components/hover-user-card";
 import { ReplyForm } from "@/components/reply-form";
 import { VoteButton } from "@/components/vote-button";
 import type { CommentNode } from "@/lib/hn/types";
+import { usePref } from "@/lib/idb/prefs";
+import { idbDelete, idbPut, useById } from "@/lib/idb/use-store";
 import { sanitizeHnHtml } from "@/lib/sanitize";
 import { relativeTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -45,8 +47,51 @@ export function Comment({
   /** Pass-through so the control-pad can find the parent in O(1). */
   parentId?: number;
 }) {
-  const [collapsed, setCollapsed] = React.useState(false);
+  const collapseDepthPref = usePref<number | null>("comments.autoCollapseDepth");
+  const persistPref = usePref<boolean>("comments.persistCollapse");
+  const persistEnabled = persistPref ?? true;
+  const collapseKey = persistEnabled && storyId ? `${storyId}:${node.id}` : null;
+  const persisted = useById("collapsedThreads", collapseKey);
+  const persistLoaded = !persisted.isLoading;
+  const initialCollapsed = React.useMemo(() => {
+    if (collapseDepthPref != null && depth > collapseDepthPref) return true;
+    return false;
+  }, [collapseDepthPref, depth]);
+
+  const [collapsed, setCollapsedRaw] = React.useState(initialCollapsed);
+  const [hydrated, setHydrated] = React.useState(false);
   const [showReply, setShowReply] = React.useState(false);
+
+  // Apply persisted collapse once IDB read returns.
+  React.useEffect(() => {
+    if (!hydrated && persistLoaded) {
+      if (persisted.data) setCollapsedRaw(true);
+      else setCollapsedRaw(initialCollapsed);
+      setHydrated(true);
+    }
+  }, [hydrated, persistLoaded, persisted.data, initialCollapsed]);
+
+  const setCollapsed = React.useCallback(
+    (next: boolean | ((p: boolean) => boolean)) => {
+      setCollapsedRaw((prev) => {
+        const value = typeof next === "function" ? next(prev) : next;
+        if (collapseKey && storyId) {
+          if (value) {
+            idbPut("collapsedThreads", {
+              id: collapseKey,
+              storyId,
+              commentId: node.id,
+              collapsedAt: Date.now(),
+            }).catch(() => {});
+          } else {
+            idbDelete("collapsedThreads", collapseKey).catch(() => {});
+          }
+        }
+        return value;
+      });
+    },
+    [collapseKey, storyId, node.id],
+  );
 
   if ((node.dead || node.deleted) && !showDead) return null;
 

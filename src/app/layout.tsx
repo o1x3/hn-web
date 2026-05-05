@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { AppearanceScript } from "@/components/appearance-script";
 import { Header } from "@/components/header";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { Providers } from "@/components/providers";
@@ -36,13 +37,19 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <AppearanceScript />
+      </head>
       <body className="min-h-svh bg-background text-foreground">
         <Providers>
           <a href="#main" className="skip-link">
             Skip to content
           </a>
           <Header username={session?.username ?? null} />
-          <div className="mx-auto flex w-full max-w-7xl">
+          <div
+            className="mx-auto flex w-full"
+            style={{ maxWidth: "var(--reader-content-width, 80rem)" }}
+          >
             <Sidebar loggedIn={!!session?.username} pathname={pathname} />
             <main id="main" className="min-w-0 flex-1 px-4 py-4 md:px-6">
               {children}
