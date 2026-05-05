@@ -20,28 +20,27 @@ export function MarkVisited({
   onLastVisited?: (ms: number | null) => void;
 }) {
   const fired = React.useRef(false);
-  const idsKey = React.useMemo(() => commentIds.join(","), [commentIds]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: commentIds intentionally omitted; the `fired` ref guards re-execution and we capture it via closure
   React.useEffect(() => {
     if (fired.current) return;
     fired.current = true;
-    let cancelled = false;
     (async () => {
       try {
         const prev = await getVisit(storyId);
-        if (!cancelled) onLastVisited?.(prev?.lastVisitedAt ?? null);
+        // Always notify: under React StrictMode the first mount's cleanup
+        // would have flipped a `cancelled` flag before this resolves, even
+        // though `fired.current` correctly skips a re-fire on the second
+        // mount. Setting state on an unmounted component is a no-op in
+        // React 18+, so the cancel guard is unnecessary here.
+        onLastVisited?.(prev?.lastVisitedAt ?? null);
         await markVisited(storyId, commentIds);
-        if (!cancelled) {
-          window.dispatchEvent(new Event("hn:visit-update"));
-        }
+        window.dispatchEvent(new Event("hn:visit-update"));
       } catch {
         // ignore — IDB may be unavailable
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [storyId, idsKey, onLastVisited, commentIds]);
+  }, [storyId, onLastVisited]);
 
   return null;
 }
