@@ -7,7 +7,7 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, Cambria, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 
@@ -155,6 +155,13 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Source Serif looks thin at 600; bump headings to 800 in serif mode.
+   Specificity (attribute + element) beats Tailwind's `.font-semibold` so
+   existing `font-semibold` headings render heavier without sweeping markup. */
+[data-reader-font="serif"] :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 800;
 }
 
 /* HN-rendered content: paragraphs, italic, code, links. */

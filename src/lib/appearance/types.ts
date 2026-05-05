@@ -53,7 +53,8 @@ export function resolveAccent(a: Accent): { h: number; s: number; l: number } {
 }
 
 export function fontFamilyValue(f: FontFamily): string {
-  if (f === "serif") return 'ui-serif, Georgia, Cambria, "Times New Roman", serif';
+  if (f === "serif")
+    return 'var(--font-source-serif), ui-serif, Georgia, Cambria, "Times New Roman", serif';
   if (f === "mono") return "var(--font-mono)";
   return "var(--font-sans)";
 }

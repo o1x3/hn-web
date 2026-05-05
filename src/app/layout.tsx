@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { AppearanceScript } from "@/components/appearance-script";
@@ -9,6 +10,13 @@ import { SelectionPopup } from "@/components/selection-popup";
 import { Sidebar } from "@/components/sidebar";
 import { SwRegister } from "@/components/sw-register";
 import { readSession } from "@/lib/session";
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +44,7 @@ export default async function RootLayout({
   const pathname = hdrs.get("x-pathname") ?? undefined;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={sourceSerif.variable}>
       <head>
         <AppearanceScript />
       </head>

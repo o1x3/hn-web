@@ -52,6 +52,7 @@ export function applyAppearance(a: Appearance): void {
   html.style.setProperty("--reader-line-height", String(merged.lineHeight));
   html.style.setProperty("--reader-content-width", contentWidthValue(merged.contentWidth));
   html.style.setProperty("--reader-justify", merged.justify);
+  html.dataset.readerFont = merged.font;
 }
 
 const listeners = new Set<() => void>();

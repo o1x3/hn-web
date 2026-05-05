@@ -144,7 +144,7 @@ export function AppearanceSection() {
               style={{
                 fontFamily:
                   f.id === "serif"
-                    ? "ui-serif, Georgia, Cambria, serif"
+                    ? "var(--font-source-serif), ui-serif, Georgia, Cambria, serif"
                     : f.id === "mono"
                       ? "ui-monospace, monospace"
                       : "ui-sans-serif, system-ui, sans-serif",
