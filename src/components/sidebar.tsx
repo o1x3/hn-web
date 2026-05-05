@@ -77,18 +77,22 @@ export function Sidebar({
         </li>
       </Section>
       <Section label="Misc">
-        <a
-          href="/rss"
-          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-        >
-          RSS
-        </a>
-        <Link
-          href="/settings"
-          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-        >
-          Settings
-        </Link>
+        <li>
+          <a
+            href="/rss"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          >
+            RSS
+          </a>
+        </li>
+        <li>
+          <Link
+            href="/settings"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          >
+            Settings
+          </Link>
+        </li>
       </Section>
     </nav>
   );
