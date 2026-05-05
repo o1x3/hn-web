@@ -35,6 +35,7 @@ export function Comment({
   lastVisitedAt,
   storyId,
   parentId,
+  hasNewSet,
 }: {
   node: CommentNode;
   depth: number;
@@ -46,6 +47,8 @@ export function Comment({
   storyId?: number;
   /** Pass-through so the control-pad can find the parent in O(1). */
   parentId?: number;
+  /** Ids that are themselves new or are ancestors of a new comment. */
+  hasNewSet?: Set<number>;
 }) {
   const collapseDepthPref = usePref<number | null>("comments.autoCollapseDepth");
   const persistPref = usePref<boolean>("comments.persistCollapse");
@@ -112,6 +115,7 @@ export function Comment({
       data-parent-id={parentId ?? ""}
       data-story-id={storyId ?? ""}
       data-new={isNew ? "true" : undefined}
+      data-has-new={hasNewSet?.has(node.id) ? "true" : undefined}
       className={cn(
         "group relative",
         depth > 0 && "border-l border-border/60 hover:border-border",
@@ -239,6 +243,7 @@ export function Comment({
                   lastVisitedAt={lastVisitedAt}
                   storyId={storyId}
                   parentId={node.id}
+                  hasNewSet={hasNewSet}
                 />
               ))}
             </div>

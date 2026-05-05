@@ -195,3 +195,9 @@
 .hn-text em {
   font-style: italic;
 }
+
+/* Show-only-new filter for thread pages. Hides comments that are neither new
+   themselves nor an ancestor of a new comment. Toggled by ThreadNewBar. */
+[data-only-new="true"] [data-comment-id]:not([data-new]):not([data-has-new]) {
+  display: none;
+}
