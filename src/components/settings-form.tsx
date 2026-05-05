@@ -1,5 +1,8 @@
 "use client";
 
+import { AppearanceSection } from "@/components/settings/appearance-section";
+import { CommentsSection } from "@/components/settings/comments-section";
+import { IndexSection } from "@/components/settings/index-section";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -45,7 +48,7 @@ export function SettingsForm() {
     blob: Backup;
     mode: "merge" | "replace";
   } | null>(null);
-  const [confirmingWipe, setConfirmingWipe] = React.useState(0); // 0/1/2
+  const [confirmingWipe, setConfirmingWipe] = React.useState(0);
 
   const refreshUsage = React.useCallback(() => {
     getStorageUsage()
@@ -134,8 +137,16 @@ export function SettingsForm() {
   };
 
   return (
-    <div className="grid gap-4">
-      <div className="grid gap-4 rounded-lg border border-border bg-card p-4">
+    <div className="grid gap-5">
+      <AppearanceSection />
+      <CommentsSection />
+      <IndexSection />
+
+      <section className="grid gap-4 rounded-lg border border-border bg-card p-5">
+        <div>
+          <h2 className="text-sm font-semibold">Privacy</h2>
+          <p className="text-xs text-muted-foreground">Moderation and on-page UI behavior.</p>
+        </div>
         <div className="flex items-center justify-between gap-4">
           <div>
             <Label>Show dead / deleted items</Label>
@@ -148,7 +159,7 @@ export function SettingsForm() {
             onCheckedChange={(v: boolean) => update({ showDead: v })}
           />
         </div>
-        <div className="border-t border-border pt-4">
+        <div>
           <Label>Control pad</Label>
           <p className="text-xs text-muted-foreground">
             Floating navigation panel for comment trees.
@@ -173,9 +184,9 @@ export function SettingsForm() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-3 rounded-lg border border-border bg-card p-4">
+      <section className="grid gap-3 rounded-lg border border-border bg-card p-5">
         <h2 className="text-sm font-semibold">Local data</h2>
         <p className="text-xs text-muted-foreground">
           All bookmarks, history, highlights, and visit data live in your browser. We send nothing.
@@ -282,7 +293,7 @@ export function SettingsForm() {
             </>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

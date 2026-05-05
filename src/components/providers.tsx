@@ -1,5 +1,6 @@
 "use client";
 
+import { AppearanceApplier } from "@/components/appearance-applier";
 import { IdbProvider } from "@/components/idb-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,10 +20,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }),
   );
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider
+      attribute="data-theme"
+      themes={["light", "dark", "black"]}
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
       <QueryClientProvider client={client}>
         <ToastProvider>
-          <IdbProvider>{children}</IdbProvider>
+          <IdbProvider>
+            <AppearanceApplier />
+            {children}
+          </IdbProvider>
         </ToastProvider>
       </QueryClientProvider>
     </ThemeProvider>

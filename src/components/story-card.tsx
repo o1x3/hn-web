@@ -3,6 +3,7 @@ import { DomainFavicon } from "@/components/domain-favicon";
 import { FavoriteButton } from "@/components/favorite-button";
 import { HoverUserCard } from "@/components/hover-user-card";
 import { NewReplyBadge } from "@/components/new-reply-badge";
+import { StoryOverflowMenu } from "@/components/story-overflow-menu";
 import { VoteButton } from "@/components/vote-button";
 import type { RawItem } from "@/lib/hn/types";
 import { relativeTime } from "@/lib/time";
@@ -112,6 +113,9 @@ export function StoryCard({
               descendants: item.descendants,
             }}
           />
+          {historicalSnapshot ? null : (
+            <StoryOverflowMenu itemId={item.id} loggedIn={loggedIn} storyUrl={item.url ?? null} />
+          )}
         </footer>
       </div>
     </article>

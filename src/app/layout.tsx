@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
+import { AppearanceScript } from "@/components/appearance-script";
 import { Header } from "@/components/header";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { Providers } from "@/components/providers";
@@ -8,6 +10,13 @@ import { SelectionPopup } from "@/components/selection-popup";
 import { Sidebar } from "@/components/sidebar";
 import { SwRegister } from "@/components/sw-register";
 import { readSession } from "@/lib/session";
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -35,14 +44,20 @@ export default async function RootLayout({
   const pathname = hdrs.get("x-pathname") ?? undefined;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={sourceSerif.variable}>
+      <head>
+        <AppearanceScript />
+      </head>
       <body className="min-h-svh bg-background text-foreground">
         <Providers>
           <a href="#main" className="skip-link">
             Skip to content
           </a>
           <Header username={session?.username ?? null} />
-          <div className="mx-auto flex w-full max-w-7xl">
+          <div
+            className="mx-auto flex w-full"
+            style={{ maxWidth: "var(--reader-content-width, 80rem)" }}
+          >
             <Sidebar loggedIn={!!session?.username} pathname={pathname} />
             <main id="main" className="min-w-0 flex-1 px-4 py-4 md:px-6">
               {children}

@@ -1,7 +1,7 @@
 import type { DBSchema } from "idb";
 
 export const DB_NAME = "hn-client";
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export type BookmarkKind = "story" | "comment" | "user" | "highlight";
 
@@ -59,6 +59,20 @@ export interface PrefRecord {
   value: unknown;
 }
 
+export interface HiddenRecord {
+  /** HN story id. */
+  storyId: number;
+  hiddenAt: number;
+}
+
+export interface CollapsedThreadRecord {
+  /** `${storyId}:${commentId}` */
+  id: string;
+  storyId: number;
+  commentId: number;
+  collapsedAt: number;
+}
+
 export interface HnSchema extends DBSchema {
   bookmarks: {
     key: string;
@@ -97,6 +111,16 @@ export interface HnSchema extends DBSchema {
     key: string;
     value: PrefRecord;
   };
+  hidden: {
+    key: number;
+    value: HiddenRecord;
+    indexes: { "by-hiddenAt": number };
+  };
+  collapsedThreads: {
+    key: string;
+    value: CollapsedThreadRecord;
+    indexes: { "by-storyId": number };
+  };
 }
 
 /**
@@ -104,4 +128,11 @@ export interface HnSchema extends DBSchema {
  * string-literal type in dependents — `idb`'s overloads reject the wider
  * `string | number | symbol` shape that `keyof DBSchema` produces.
  */
-export type StoreName = "bookmarks" | "visits" | "history" | "highlights" | "prefs";
+export type StoreName =
+  | "bookmarks"
+  | "visits"
+  | "history"
+  | "highlights"
+  | "prefs"
+  | "hidden"
+  | "collapsedThreads";
