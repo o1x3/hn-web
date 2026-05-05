@@ -85,8 +85,12 @@ export function useByIndex<S extends StoreName>(
   const [tick, setTick] = React.useState(0);
   React.useEffect(() => subscribe(store, () => setTick((n) => n + 1)), [store]);
   // Stringify the query so deps are stable. IDBKeyRange identity changes per render.
+  // Guard the global — `IDBKeyRange` is undefined during SSR.
   const queryKey = React.useMemo(
-    () => (query instanceof IDBKeyRange ? "range" : String(query ?? "")),
+    () =>
+      typeof IDBKeyRange !== "undefined" && query instanceof IDBKeyRange
+        ? "range"
+        : String(query ?? ""),
     [query],
   );
   return useAsyncRead(
