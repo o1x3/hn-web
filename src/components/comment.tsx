@@ -134,6 +134,7 @@ export function Comment({
           type="button"
           onClick={() => setCollapsed((c) => !c)}
           aria-expanded={!collapsed}
+          aria-label={collapsed ? "Expand comment thread" : "Collapse comment thread"}
           className="inline-flex items-center gap-1 rounded px-1 hover:bg-accent"
         >
           <ChevronDown className={cn("size-3 transition-transform", collapsed && "-rotate-90")} />
@@ -216,7 +217,12 @@ export function Comment({
               <MessageCircle className="size-3" />
               Reply
             </button>
-            <Link href={`/item/${node.id}`} className="hover:text-foreground" title="Permalink">
+            <Link
+              href={`/item/${node.id}`}
+              className="hover:text-foreground"
+              title="Permalink"
+              aria-label={`Permalink to comment ${node.id}`}
+            >
               link
             </Link>
           </div>

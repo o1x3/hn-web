@@ -43,7 +43,7 @@
   /* Accent defaults — overridden by AppearanceScript when a user pref exists. */
   :root {
     --primary: 20 90% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 9%;
     --ring: 20 90% 55%;
     --color-upvote-h: 20;
     --color-upvote-s: 90%;
