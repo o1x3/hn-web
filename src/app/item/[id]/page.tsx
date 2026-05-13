@@ -11,6 +11,7 @@ import { fanoutCommentTree, getItem } from "@/lib/hn/firebase";
 import type { AlgoliaTreeNode, CommentNode, RawItem } from "@/lib/hn/types";
 import { sanitizeHnHtml } from "@/lib/sanitize";
 import { readSession } from "@/lib/session";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { relativeTime } from "@/lib/time";
 import { hostFromUrl } from "@/lib/utils";
 import { ChevronUp, ExternalLink, MessageSquare } from "lucide-react";
@@ -27,13 +28,28 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const item = await getItem(Number(id));
+  const title = item?.title ?? `Item ${id}`;
+  const host = hostFromUrl(item?.url);
+  const description = item?.text
+    ? stripTags(item.text).slice(0, 200)
+    : item?.url
+      ? `Discussion on Hacker News${host ? ` (${host})` : ""} — ${item.descendants ?? 0} comments, ${item.score ?? 0} points.`
+      : `Hacker News discussion thread #${id}.`;
+  const canonical = `/item/${id}`;
   return {
-    title: item?.title ?? `Item ${id}`,
+    title,
+    description,
+    alternates: { canonical },
     openGraph: {
-      title: item?.title ?? `Item ${id}`,
-      description: item?.text ? stripTags(item.text).slice(0, 200) : undefined,
       type: "article",
+      title,
+      description,
+      url: canonical,
+      ...(item?.time ? { publishedTime: new Date(item.time * 1000).toISOString() } : {}),
+      ...(item?.by ? { authors: [item.by] } : {}),
     },
+    twitter: { card: "summary_large_image", title, description },
+    robots: item?.dead || item?.deleted ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -59,9 +75,15 @@ export default async function ItemPage({ params }: PageProps) {
   const comments: CommentNode[] = tree ? algoliaToComments(tree.children ?? []) : fallback;
 
   const host = hostFromUrl(item.url);
+  const jsonLd = buildItemJsonLd(item, comments);
 
   return (
     <article className="grid gap-6">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: serialized object
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HistoryRecorder kind="story" refId={String(item.id)} title={item.title ?? undefined} />
       <header className="rounded-lg border border-border bg-card p-4">
         <div className="flex gap-3">
@@ -187,4 +209,61 @@ function assembleTreeFromFlat(rootId: number, flat: RawItem[]): CommentNode[] {
 
 function stripTags(html: string): string {
   return html.replace(/<[^>]*>/g, "");
+}
+
+function buildItemJsonLd(item: RawItem, comments: CommentNode[]) {
+  const url = `${SITE_URL}/item/${item.id}`;
+  const headline = item.title ?? `Item ${item.id}`;
+  const datePublished = item.time ? new Date(item.time * 1000).toISOString() : undefined;
+  const author = item.by
+    ? { "@type": "Person" as const, name: item.by, url: `${SITE_URL}/user/${item.by}` }
+    : undefined;
+  const articleBody = item.text ? stripTags(item.text) : undefined;
+
+  const renderComment = (c: CommentNode): Record<string, unknown> | null => {
+    if (c.deleted || c.dead) return null;
+    const text = c.textHtml.replace(/<[^>]*>/g, "");
+    return {
+      "@type": "Comment",
+      text,
+      url: `${SITE_URL}/item/${c.id}`,
+      ...(c.createdAt ? { dateCreated: new Date(c.createdAt * 1000).toISOString() } : {}),
+      ...(c.author
+        ? { author: { "@type": "Person", name: c.author, url: `${SITE_URL}/user/${c.author}` } }
+        : {}),
+    };
+  };
+  const topComments = comments.map(renderComment).filter(Boolean).slice(0, 25);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "DiscussionForumPosting",
+    "@id": url,
+    url,
+    mainEntityOfPage: url,
+    headline,
+    name: headline,
+    ...(articleBody ? { articleBody, text: articleBody } : {}),
+    ...(item.url ? { discussionUrl: item.url } : {}),
+    ...(datePublished ? { datePublished } : {}),
+    ...(author ? { author } : {}),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/CommentAction",
+        userInteractionCount: item.descendants ?? 0,
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/LikeAction",
+        userInteractionCount: item.score ?? 0,
+      },
+    ],
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    ...(topComments.length ? { comment: topComments, commentCount: item.descendants ?? 0 } : {}),
+  };
 }

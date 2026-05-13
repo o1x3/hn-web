@@ -2,7 +2,7 @@
 // Strategy: cache-first for static; stale-while-revalidate for HN proxy URLs.
 // FRAGILE: interaction with Next.js cache headers — verify in offline mode.
 
-const CACHE = "hnr-v1";
+const CACHE = "hnr-v2";
 const STATIC = ["/", "/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
