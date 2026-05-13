@@ -17,8 +17,12 @@ import * as React from "react";
 /**
  * Recursive collapsible comment.
  *
- * Reddit signature: clicking the vertical guide-line (left rail) collapses
- * the subtree. Also clickable header-collapse with `[-]` indicator.
+ * Collapse controls:
+ *   - Header chevron: collapses THIS comment (own subtree).
+ *   - Left rail (the guide-line on a child's left edge): collapses the
+ *     PARENT — the comment whose reply column the rail visually belongs to.
+ *     Sibling rails at the same depth all call the same parent toggle, so
+ *     the visually-continuous rail acts as one click target.
  *
  * F2: when `lastVisitedAt` is set, comments newer than that timestamp are
  * marked with a `↑` indicator and `data-new="true"` for `n`/`Shift+n` jumps.
@@ -36,6 +40,7 @@ export function Comment({
   storyId,
   parentId,
   hasNewSet,
+  onCollapseParent,
 }: {
   node: CommentNode;
   depth: number;
@@ -49,6 +54,9 @@ export function Comment({
   parentId?: number;
   /** Ids that are themselves new or are ancestors of a new comment. */
   hasNewSet?: Set<number>;
+  /** Toggle the parent's collapsed state — called when this comment's rail
+   * is clicked. The rail belongs to the parent's reply column. */
+  onCollapseParent?: () => void;
 }) {
   const collapseDepthPref = usePref<number | null>("comments.autoCollapseDepth");
   const persistPref = usePref<boolean>("comments.persistCollapse");
@@ -123,12 +131,15 @@ export function Comment({
       )}
       style={{ paddingLeft: depth > 0 ? 12 : 0, marginLeft: depth > 0 ? indent : 0 }}
     >
-      {/* Click target along the guide-line collapses subtree. */}
-      {depth > 0 ? (
+      {/* Rail click target: collapses the PARENT (the comment whose reply
+       * column this rail visually belongs to). Sibling rails at the same
+       * depth all call the same parent toggle, so the visually-continuous
+       * rail behaves as one. */}
+      {depth > 0 && onCollapseParent ? (
         <button
           type="button"
-          aria-label={collapsed ? "Expand thread" : "Collapse thread"}
-          onClick={() => setCollapsed((c) => !c)}
+          aria-label="Collapse parent thread"
+          onClick={onCollapseParent}
           className="absolute left-0 top-0 h-full w-3 -translate-x-1/2 cursor-pointer opacity-0 hover:opacity-100"
         />
       ) : null}
@@ -244,6 +255,7 @@ export function Comment({
                   storyId={storyId}
                   parentId={node.id}
                   hasNewSet={hasNewSet}
+                  onCollapseParent={() => setCollapsed((c) => !c)}
                 />
               ))}
             </div>
