@@ -7,6 +7,7 @@ import { getUser } from "@/lib/hn/firebase";
 import type { RawItem } from "@/lib/hn/types";
 import { sanitizeHnHtml } from "@/lib/sanitize";
 import { readSession } from "@/lib/session";
+import { SITE_URL } from "@/lib/site";
 import { relativeTime } from "@/lib/time";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -20,7 +21,21 @@ export async function generateMetadata({
   params,
 }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  return { title: `${id} · profile` };
+  const description = `Hacker News profile for ${id} — karma, submissions, and recent comments.`;
+  const canonical = `/user/${id}`;
+  return {
+    title: `${id} · profile`,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "profile",
+      title: `${id} on Hacker News`,
+      description,
+      url: canonical,
+      username: id,
+    },
+    twitter: { card: "summary", title: `${id} on Hacker News`, description },
+  };
 }
 
 export default async function UserPage({
@@ -67,8 +82,28 @@ export default async function UserPage({
   const karma = typeof user?.karma === "number" ? user.karma : null;
   const created = user?.created;
 
+  const profileJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: `${SITE_URL}/user/${displayName}`,
+    mainEntity: {
+      "@type": "Person",
+      name: displayName,
+      url: `${SITE_URL}/user/${displayName}`,
+      identifier: displayName,
+      ...(aboutHtml ? { description: aboutHtml.replace(/<[^>]*>/g, "").slice(0, 500) } : {}),
+      ...(created ? { foundingDate: new Date(created * 1000).toISOString() } : {}),
+      sameAs: [`https://news.ycombinator.com/user?id=${displayName}`],
+    },
+  };
+
   return (
     <div className="grid gap-4">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: serialized object
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profileJsonLd) }}
+      />
       <HistoryRecorder kind="user" refId={id} title={displayName} />
 
       <header className="flex items-start gap-4 rounded-lg border border-border bg-card p-5">
